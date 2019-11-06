@@ -3,6 +3,7 @@ package sfoxapi
 import (
 	"bytes"
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -28,9 +29,10 @@ func (api *SFOXAPI) doRequest(action, path string, body interface{}, result inte
 	if err != nil {
 		return
 	}
+	defer resp.Body.Close()
 	statusCode = resp.StatusCode
 	//read body
-	_, err = resp.Body.Read(bodyBytes)
+	bodyBytes, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return
 	}

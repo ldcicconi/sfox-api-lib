@@ -38,13 +38,13 @@ func (api *SFOXAPI) NewOrder(quantity, price decimal.Decimal, algoID int, pair, 
 		"",
 	}
 	// make request
-	_, _, err = api.doRequest("POST", "/v1/orders/"+side, reqBody, orderStatus)
+	_, _, err = api.doRequest("POST", "/v1/orders/"+side, reqBody, &orderStatus)
 	return
 }
 
 func (api *SFOXAPI) OrderStatus(id int) (orderStatus OrderStatusResponse, err error) {
 	// make request
-	_, _, err = api.doRequest("GET", "/v1/orders/"+strconv.Itoa(id), nil, orderStatus)
+	_, _, err = api.doRequest("GET", "/v1/orders/"+strconv.Itoa(id), nil, &orderStatus)
 	return
 }
 
