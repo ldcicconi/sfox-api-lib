@@ -1,8 +1,9 @@
 package sfoxapi
 
 import (
-	"github.com/shopspring/decimal"
 	"strconv"
+
+	"github.com/shopspring/decimal"
 )
 
 var (
@@ -42,9 +43,9 @@ func (api *SFOXAPI) NewOrder(quantity, price decimal.Decimal, algoID int, pair, 
 	return
 }
 
-func (api *SFOXAPI) OrderStatus(id int) (orderStatus OrderStatusResponse, err error) {
+func (api *SFOXAPI) OrderStatus(id int64) (orderStatus OrderStatusResponse, err error) {
 	// make request
-	_, _, err = api.doRequest("GET", "/v1/orders/"+strconv.Itoa(id), nil, &orderStatus)
+	_, _, err = api.doRequest("GET", "/v1/orders/"+strconv.FormatInt(id, 10), nil, &orderStatus)
 	return
 }
 
@@ -54,8 +55,8 @@ func (api *SFOXAPI) GetActiveOrders() (orders []OrderStatusResponse, err error) 
 	return
 }
 
-func (api *SFOXAPI) CancelOrder(id int) (err error) {
+func (api *SFOXAPI) CancelOrder(id int64) (err error) {
 	// make request
-	_, _, err = api.doRequest("GET", "/v1/orders/", nil, nil)
+	_, _, err = api.doRequest("DELETE", "/v1/orders/"+strconv.FormatInt(id, 10), nil, nil)
 	return
 }
