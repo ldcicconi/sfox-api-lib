@@ -1,8 +1,11 @@
 package sfoxapi
 
 import (
-	"github.com/shopspring/decimal"
+	"encoding/json"
+	"fmt"
 	"strconv"
+
+	"github.com/shopspring/decimal"
 )
 
 var (
@@ -13,7 +16,7 @@ var (
 type OrderStatusResponse struct {
 	ID             int64           `json:"id"`
 	Quantity       decimal.Decimal `json:"quantity"`
-	Price          decimal.Decimal `json:"quantity"`
+	Price          decimal.Decimal `json:"price"`
 	Pair           string          `json:"pair"`
 	VWAP           decimal.Decimal `json:"vwap"`
 	FilledQuantity decimal.Decimal `json:"filled"`
@@ -21,30 +24,34 @@ type OrderStatusResponse struct {
 }
 
 type NewOrderReqeust struct {
-	Quantity      decimal.Decimal `json:"quantity"`
-	Price         decimal.Decimal `json:"price"`
-	Pair          string          `json:"currency_pair"`
-	AlgoID        int             `json:"algorith_id"`
-	ClientOrderID string          `json:"client_order_id"`
+	Quantity      float64 `json:"quantity"`
+	Price         float64 `json:"price"`
+	Pair          string  `json:"currency_pair"`
+	AlgoID        int     `json:"algorithm_id"`
+	ClientOrderID string  `json:"client_order_id"`
 }
 
 func (api *SFOXAPI) NewOrder(quantity, price decimal.Decimal, algoID int, pair, side string) (orderStatus OrderStatusResponse, err error) {
 	// create request body
+	q, _ := quantity.Float64()
+	p, _ := price.Float64()
 	reqBody := NewOrderReqeust{
-		quantity,
-		price,
+		q,
+		p,
 		pair,
 		algoID,
 		"",
 	}
+	bytes, _ := json.Marshal(reqBody)
+	fmt.Println("request: " + string(bytes))
 	// make request
 	_, _, err = api.doRequest("POST", "/v1/orders/"+side, reqBody, &orderStatus)
 	return
 }
 
-func (api *SFOXAPI) OrderStatus(id int) (orderStatus OrderStatusResponse, err error) {
+func (api *SFOXAPI) OrderStatus(id int64) (orderStatus OrderStatusResponse, err error) {
 	// make request
-	_, _, err = api.doRequest("GET", "/v1/orders/"+strconv.Itoa(id), nil, &orderStatus)
+	_, _, err = api.doRequest("GET", "/v1/orders/"+strconv.FormatInt(id, 10), nil, &orderStatus)
 	return
 }
 
@@ -54,8 +61,8 @@ func (api *SFOXAPI) GetActiveOrders() (orders []OrderStatusResponse, err error) 
 	return
 }
 
-func (api *SFOXAPI) CancelOrder(id int) (err error) {
+func (api *SFOXAPI) CancelOrder(id int64) (err error) {
 	// make request
-	_, _, err = api.doRequest("GET", "/v1/orders/", nil, nil)
+	_, _, err = api.doRequest("DELETE", "/v1/orders/"+strconv.FormatInt(id, 10), nil, nil)
 	return
 }
