@@ -31,6 +31,7 @@ func (api *SFOXAPI) doRequest(action, path string, body interface{}, result inte
 	}
 	// attach header for auth
 	req.Header.Add("Authorization", "Bearer "+api.Key)
+	req.Header.Add("Content-Type", "application/json")
 	// send request
 	resp, err := api.HttpClient.Do(req)
 	if err != nil {

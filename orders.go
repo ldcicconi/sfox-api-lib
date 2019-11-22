@@ -1,6 +1,8 @@
 package sfoxapi
 
 import (
+	"encoding/json"
+	"fmt"
 	"strconv"
 
 	"github.com/shopspring/decimal"
@@ -14,7 +16,7 @@ var (
 type OrderStatusResponse struct {
 	ID             int64           `json:"id"`
 	Quantity       decimal.Decimal `json:"quantity"`
-	Price          decimal.Decimal `json:"quantity"`
+	Price          decimal.Decimal `json:"price"`
 	Pair           string          `json:"pair"`
 	VWAP           decimal.Decimal `json:"vwap"`
 	FilledQuantity decimal.Decimal `json:"filled"`
@@ -22,22 +24,26 @@ type OrderStatusResponse struct {
 }
 
 type NewOrderReqeust struct {
-	Quantity      decimal.Decimal `json:"quantity"`
-	Price         decimal.Decimal `json:"price"`
-	Pair          string          `json:"currency_pair"`
-	AlgoID        int             `json:"algorith_id"`
-	ClientOrderID string          `json:"client_order_id"`
+	Quantity      float64 `json:"quantity"`
+	Price         float64 `json:"price"`
+	Pair          string  `json:"currency_pair"`
+	AlgoID        int     `json:"algorithm_id"`
+	ClientOrderID string  `json:"client_order_id"`
 }
 
 func (api *SFOXAPI) NewOrder(quantity, price decimal.Decimal, algoID int, pair, side string) (orderStatus OrderStatusResponse, err error) {
 	// create request body
+	q, _ := quantity.Float64()
+	p, _ := price.Float64()
 	reqBody := NewOrderReqeust{
-		quantity,
-		price,
+		q,
+		p,
 		pair,
 		algoID,
 		"",
 	}
+	bytes, _ := json.Marshal(reqBody)
+	fmt.Println("request: " + string(bytes))
 	// make request
 	_, _, err = api.doRequest("POST", "/v1/orders/"+side, reqBody, &orderStatus)
 	return
