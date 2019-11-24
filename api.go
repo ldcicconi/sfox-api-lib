@@ -15,7 +15,7 @@ type SFOXErrorMsg struct {
 }
 
 // TODO: better errors
-func (api *SFOXAPI) doRequest(action, path string, body interface{}, result interface{}) (bodyBytes []byte, statusCode int, err error) {
+func (api *SFOXAPI) doRequest(action, path string, body interface{}, result interface{}, logRawData bool) (bodyBytes []byte, statusCode int, err error) {
 	// build request
 	var reqBodyBytes []byte
 	if body != nil && action == "POST" {
@@ -43,6 +43,9 @@ func (api *SFOXAPI) doRequest(action, path string, body interface{}, result inte
 	bodyBytes, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return
+	}
+	if logRawData {
+		fmt.Println(string(bodyBytes))
 	}
 	// check status code
 	if statusCode >= 400 {

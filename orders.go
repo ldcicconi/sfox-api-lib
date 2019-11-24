@@ -35,6 +35,10 @@ func (api *SFOXAPI) NewOrder(quantity, price decimal.Decimal, algoID int, pair, 
 	// create request body
 	q, _ := quantity.Float64()
 	p, _ := price.Float64()
+	if pair[len(pair)-3:] == "usd" && (p*q < 5 || q < 0.001) {
+		err = fmt.Errorf("not bigger than the minimum")
+		return
+	}
 	reqBody := NewOrderReqeust{
 		q,
 		p,
@@ -45,24 +49,24 @@ func (api *SFOXAPI) NewOrder(quantity, price decimal.Decimal, algoID int, pair, 
 	bytes, _ := json.Marshal(reqBody)
 	fmt.Println("request: " + string(bytes))
 	// make request
-	_, _, err = api.doRequest("POST", "/v1/orders/"+side, reqBody, &orderStatus)
+	_, _, err = api.doRequest("POST", "/v1/orders/"+side, reqBody, &orderStatus, true)
 	return
 }
 
 func (api *SFOXAPI) OrderStatus(id int64) (orderStatus OrderStatusResponse, err error) {
 	// make request
-	_, _, err = api.doRequest("GET", "/v1/orders/"+strconv.FormatInt(id, 10), nil, &orderStatus)
+	_, _, err = api.doRequest("GET", "/v1/orders/"+strconv.FormatInt(id, 10), nil, &orderStatus, true)
 	return
 }
 
 func (api *SFOXAPI) GetActiveOrders() (orders []OrderStatusResponse, err error) {
 	// make request
-	_, _, err = api.doRequest("GET", "/v1/orders/", nil, orders)
+	_, _, err = api.doRequest("GET", "/v1/orders/", nil, orders, true)
 	return
 }
 
 func (api *SFOXAPI) CancelOrder(id int64) (err error) {
 	// make request
-	_, _, err = api.doRequest("DELETE", "/v1/orders/"+strconv.FormatInt(id, 10), nil, nil)
+	_, _, err = api.doRequest("DELETE", "/v1/orders/"+strconv.FormatInt(id, 10), nil, nil, true)
 	return
 }
