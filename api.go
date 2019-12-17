@@ -34,7 +34,7 @@ func (api *SFOXAPI) doRequest(action, path string, body interface{}, result inte
 	req.Header.Add("Content-Type", "application/json")
 	// send request
 	resp, err := api.HttpClient.Do(req)
-	if err != nil {
+	if err != nil && resp == nil {
 		return
 	}
 	defer resp.Body.Close()

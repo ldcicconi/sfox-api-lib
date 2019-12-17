@@ -14,7 +14,7 @@ type SFOXAPI struct {
 
 func NewSFOXAPI(apiKey string) *SFOXAPI {
 	tr := http.Transport{
-		// TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		MaxIdleConnsPerHost: 20,
 	}
 	return &SFOXAPI{
 		Key: apiKey,
