@@ -21,6 +21,7 @@ type OrderStatusResponse struct {
 	VWAP           decimal.Decimal `json:"vwap"`
 	FilledQuantity decimal.Decimal `json:"filled"`
 	Status         string          `json:"status"`
+	NetProceeds    decimal.Decimal `json:"net_proceeds"`
 }
 
 type NewOrderReqeust struct {
