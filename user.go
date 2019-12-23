@@ -12,6 +12,6 @@ type SFOXBalance struct {
 
 func (api *SFOXAPI) GetBalances() (balances []SFOXBalance, err error) {
 	// make request
-	_, _, err = api.doRequest("GET", "/v1/users/balance", nil, &balances, true)
+	_, _, err = api.doRequest("GET", "/v1/users/balance", nil, &balances, false)
 	return
 }
