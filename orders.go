@@ -1,7 +1,6 @@
 package sfoxapi
 
 import (
-	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -47,27 +46,29 @@ func (api *SFOXAPI) NewOrder(quantity, price decimal.Decimal, algoID int, pair, 
 		algoID,
 		"",
 	}
-	bytes, _ := json.Marshal(reqBody)
-	fmt.Println("request: " + string(bytes))
 	// make request
-	_, _, err = api.doRequest("POST", "/v1/orders/"+side, reqBody, &orderStatus, true)
+	_, _, err = api.doRequest("POST", "/v1/orders/"+side, reqBody, &orderStatus, false)
+	api.reportError(CreateOrderKey, err)
 	return
 }
 
 func (api *SFOXAPI) OrderStatus(id int64) (orderStatus OrderStatusResponse, err error) {
 	// make request
-	_, _, err = api.doRequest("GET", "/v1/orders/"+strconv.FormatInt(id, 10), nil, &orderStatus, true)
+	_, _, err = api.doRequest("GET", "/v1/orders/"+strconv.FormatInt(id, 10), nil, &orderStatus, false)
+	api.reportError(OrderStatusKey, err)
 	return
 }
 
 func (api *SFOXAPI) GetActiveOrders() (orders []OrderStatusResponse, err error) {
 	// make request
-	_, _, err = api.doRequest("GET", "/v1/orders/", nil, orders, true)
+	_, _, err = api.doRequest("GET", "/v1/orders/", nil, orders, false)
+	api.reportError(GetOpenOrdersKey, err)
 	return
 }
 
 func (api *SFOXAPI) CancelOrder(id int64) (err error) {
 	// make request
-	_, _, err = api.doRequest("DELETE", "/v1/orders/"+strconv.FormatInt(id, 10), nil, nil, true)
+	_, _, err = api.doRequest("DELETE", "/v1/orders/"+strconv.FormatInt(id, 10), nil, nil, false)
+	api.reportError(CancelOrderKey, err)
 	return
 }

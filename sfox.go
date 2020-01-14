@@ -7,12 +7,13 @@ import (
 )
 
 type SFOXAPI struct {
-	Key        string
-	HttpClient *http.Client
-	URL        string
+	Key          string
+	HttpClient   *http.Client
+	URL          string
+	ErrorMonitor *Monitor
 }
 
-func NewSFOXAPI(apiKey string) *SFOXAPI {
+func NewSFOXAPI(apiKey string, monitor *Monitor) *SFOXAPI {
 	tr := http.Transport{
 		MaxIdleConnsPerHost: 20,
 	}

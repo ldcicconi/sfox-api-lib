@@ -8,11 +8,18 @@ import (
 	"net/http"
 )
 
-var ErrJsonUnmarshalling = fmt.Errorf("error unmarshalling JSON body")
-
 type SFOXErrorMsg struct {
-	Error string `json:"error"`
+	errorMessage string `json:"error"`
 }
+
+func (e *SFOXErrorMsg) Error() string {
+	return e.errorMessage
+}
+
+var ErrHttp = fmt.Errorf("error with http")
+var ErrReading = fmt.Errorf("error readind body")
+var ErrJsonMarshalling = fmt.Errorf("error marshalling JSON")
+var ErrJsonUnmarshalling = fmt.Errorf("error unmarshalling JSON")
 
 // TODO: better errors
 func (api *SFOXAPI) doRequest(action, path string, body interface{}, result interface{}, logRawData bool) (bodyBytes []byte, statusCode int, err error) {
@@ -21,12 +28,14 @@ func (api *SFOXAPI) doRequest(action, path string, body interface{}, result inte
 	if body != nil && action == "POST" {
 		reqBodyBytes, err = json.Marshal(body)
 		if err != nil {
+			err = ErrJsonMarshalling
 			return
 		}
 	}
 	bytesReader := bytes.NewReader(reqBodyBytes)
 	req, err := http.NewRequest(action, api.URL+path, bytesReader)
 	if err != nil {
+		err = ErrHttp
 		return
 	}
 	// attach header for auth
@@ -35,6 +44,7 @@ func (api *SFOXAPI) doRequest(action, path string, body interface{}, result inte
 	// send request
 	resp, err := api.HttpClient.Do(req)
 	if err != nil && resp == nil {
+		err = ErrHttp
 		return
 	}
 	defer resp.Body.Close()
@@ -42,6 +52,7 @@ func (api *SFOXAPI) doRequest(action, path string, body interface{}, result inte
 	// read body
 	bodyBytes, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
+		err = ErrReading
 		return
 	}
 	if logRawData {
@@ -53,7 +64,10 @@ func (api *SFOXAPI) doRequest(action, path string, body interface{}, result inte
 		var errorMsg SFOXErrorMsg
 		err = json.Unmarshal(bodyBytes, errorMsg)
 		if err != nil {
-			err = ErrJsonUnmarshalling
+			err = &ResponseBodyError{
+				Underlying:   nil,
+				ResponseBody: string(bodyBytes),
+			}
 			return
 		} else {
 			err = fmt.Errorf("statusCode: %d error_message: %s", statusCode, errorMsg.Error)
@@ -63,8 +77,10 @@ func (api *SFOXAPI) doRequest(action, path string, body interface{}, result inte
 	if result != nil {
 		err = json.Unmarshal(bodyBytes, result)
 		if err != nil {
-			err = ErrJsonUnmarshalling
-			return
+			err = &ResponseBodyError{
+				Underlying:   ErrJsonUnmarshalling,
+				ResponseBody: string(bodyBytes),
+			}
 		}
 	}
 	// return
