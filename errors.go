@@ -12,5 +12,8 @@ type ResponseBodyError struct {
 }
 
 func (e *ResponseBodyError) Error() string {
-	return e.Underlying.Error() + " " + e.ResponseBody
+	if e.Underlying != nil {
+		return e.Underlying.Error() + " " + e.ResponseBody
+	}
+	return e.ResponseBody
 }
