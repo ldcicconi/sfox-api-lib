@@ -49,7 +49,8 @@ func (monitor *Monitor) Start() {
 		nextTime := lastTime.Truncate(time.Hour)
 		for {
 			nextTime = nextTime.Add(time.Hour)
-			time.Until(nextTime)
+			waitingTime := time.Until(nextTime)
+			time.Sleep(waitingTime)
 			// log stuff
 			monitor.lock.Lock()
 			fmt.Printf("SFOX-API-LIB errors since %s (%f min) :\n", lastTime.Format(time.RFC822Z), nextTime.Sub(lastTime).Minutes())
