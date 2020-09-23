@@ -7,6 +7,7 @@ import (
 	"github.com/valyala/fastjson"
 )
 
+var One = decimal.NewFromFloat(1)
 var Two = decimal.NewFromFloat(2)
 
 type SfoxOrderbook struct {
@@ -20,6 +21,24 @@ func (ob *SfoxOrderbook) MidPrice() (decimal.Decimal, error) {
 	}
 
 	return ob.Asks[0].Price.Add(ob.Bids[0].Price).Div(Two), nil
+}
+
+func (ob *SfoxOrderbook) WeightedMidPriceSimple() (decimal.Decimal, error) {
+	if len(ob.Bids) < 1 || len(ob.Asks) < 1 {
+		return decimal.Zero, errors.New("bids or asks not long enough")
+	}
+
+	sumQuantities := ob.Bids[0].Quantity.Add(ob.Asks[0].Quantity)
+	if sumQuantities.IsZero() {
+		return decimal.Zero, errors.New("zero quantity ???")
+	}
+
+	imbalance := ob.Bids[0].Quantity.Div(sumQuantities)
+
+	firstTerm := imbalance.Mul(ob.Asks[0].Price)
+	secondTerm := One.Sub(imbalance).Mul(ob.Bids[0].Quantity)
+
+	return firstTerm.Add(secondTerm), nil
 }
 
 type Offer struct {
