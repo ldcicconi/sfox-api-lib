@@ -36,7 +36,7 @@ func (ob *SfoxOrderbook) WeightedMidPriceSimple() (decimal.Decimal, error) {
 	imbalance := ob.Bids[0].Quantity.Div(sumQuantities)
 
 	firstTerm := imbalance.Mul(ob.Asks[0].Price)
-	secondTerm := One.Sub(imbalance).Mul(ob.Bids[0].Quantity)
+	secondTerm := One.Sub(imbalance).Mul(ob.Bids[0].Price)
 
 	return firstTerm.Add(secondTerm), nil
 }
