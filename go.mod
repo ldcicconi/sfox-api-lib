@@ -7,4 +7,5 @@ require (
 	github.com/hashicorp/vault v1.2.3
 	github.com/robaho/fixed v0.0.0-20190722234118-4530cf6b4486
 	github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24
+	github.com/valyala/fastjson v1.6.1
 )

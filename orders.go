@@ -47,28 +47,28 @@ func (api *SFOXAPI) NewOrder(quantity, price decimal.Decimal, algoID int, pair, 
 		"",
 	}
 	// make request
-	_, _, err = api.doRequest("POST", "/v1/orders/"+side, reqBody, &orderStatus, false)
+	_, _, err = api.doRequest("POST", "/v1/orders/"+side, reqBody, &orderStatus, false, true)
 	api.reportError(CreateOrderKey, err)
 	return
 }
 
 func (api *SFOXAPI) OrderStatus(id int64) (orderStatus OrderStatusResponse, err error) {
 	// make request
-	_, _, err = api.doRequest("GET", "/v1/orders/"+strconv.FormatInt(id, 10), nil, &orderStatus, false)
+	_, _, err = api.doRequest("GET", "/v1/orders/"+strconv.FormatInt(id, 10), nil, &orderStatus, false, true)
 	api.reportError(OrderStatusKey, err)
 	return
 }
 
 func (api *SFOXAPI) GetActiveOrders() (orders []OrderStatusResponse, err error) {
 	// make request
-	_, _, err = api.doRequest("GET", "/v1/orders/", nil, orders, false)
+	_, _, err = api.doRequest("GET", "/v1/orders/", nil, orders, false, true)
 	api.reportError(GetOpenOrdersKey, err)
 	return
 }
 
 func (api *SFOXAPI) CancelOrder(id int64) (err error) {
 	// make request
-	_, _, err = api.doRequest("DELETE", "/v1/orders/"+strconv.FormatInt(id, 10), nil, nil, false)
+	_, _, err = api.doRequest("DELETE", "/v1/orders/"+strconv.FormatInt(id, 10), nil, nil, false, true)
 	api.reportError(CancelOrderKey, err)
 	return
 }

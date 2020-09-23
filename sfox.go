@@ -13,7 +13,7 @@ type SFOXAPI struct {
 	ErrorMonitor *Monitor
 }
 
-func NewSFOXAPI(apiKey string, monitor *Monitor) *SFOXAPI {
+func NewSFOXAPI(apiKey string) *SFOXAPI {
 	tr := http.Transport{
 		MaxIdleConnsPerHost: 20,
 	}

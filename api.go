@@ -22,7 +22,7 @@ var ErrJsonMarshalling = fmt.Errorf("error marshalling JSON")
 var ErrJsonUnmarshalling = fmt.Errorf("error unmarshalling JSON")
 
 // TODO: better errors
-func (api *SFOXAPI) doRequest(action, path string, body interface{}, result interface{}, logRawData bool) (bodyBytes []byte, statusCode int, err error) {
+func (api *SFOXAPI) doRequest(action, path string, body interface{}, result interface{}, logRawData, requiresAuth bool) (bodyBytes []byte, statusCode int, err error) {
 	// build request
 	var reqBodyBytes []byte
 	if body != nil && action == "POST" {
@@ -39,7 +39,9 @@ func (api *SFOXAPI) doRequest(action, path string, body interface{}, result inte
 		return
 	}
 	// attach header for auth
-	req.Header.Add("Authorization", "Bearer "+api.Key)
+	if requiresAuth {
+		req.Header.Add("Authorization", "Bearer "+api.Key)
+	}
 	req.Header.Add("Content-Type", "application/json")
 	// send request
 	resp, err := api.HttpClient.Do(req)
@@ -70,7 +72,7 @@ func (api *SFOXAPI) doRequest(action, path string, body interface{}, result inte
 			}
 			return
 		} else {
-			err = fmt.Errorf("statusCode: %d error_message: %s", statusCode, errorMsg.Error)
+			err = fmt.Errorf("statusCode: %d error_message: %s", statusCode, errorMsg.Error())
 		}
 	}
 	// try to unmarshal
