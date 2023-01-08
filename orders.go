@@ -37,6 +37,38 @@ type OrderStatusResponse struct {
 	NetProceeds    decimal.Decimal `json:"net_proceeds"`
 }
 
+type ExecutionAlgorithm int
+
+const (
+	ExecutionAlgorithmMarket ExecutionAlgorithm = iota
+	ExecutionAlgorithmInstant
+	ExecutionAlgorithmSimple
+	ExecutionAlgorithmSmart
+	ExecutionAlgorithmLimit
+	ExecutionAlgorithmGorilla
+	ExecutionAlgorithmTortoise
+	ExecutionAlgorithmHare
+	ExecutionAlgorithmStop
+	ExecutionAlgorithmPolarBear
+	ExecutionAlgorithmSniper
+	ExecutionAlgorithmTWAP
+	ExecutionAlgorithmTrailingStop
+	ExecutionAlgorithmImmediateOrCancel
+)
+
+func algorithmIDFromExecutionAlgorithm(algorithm ExecutionAlgorithm) (algorithmID int) {
+	switch algorithm {
+	case ExecutionAlgorithmMarket:
+		return 100
+	case ExecutionAlgorithmSmart:
+		return 200
+	case ExecutionAlgorithmTWAP:
+		return 307
+	default:
+		return 0
+	}
+}
+
 type NewOrderRequest struct {
 	Quantity      float64 `json:"quantity"`
 	Price         float64 `json:"price"`
@@ -45,19 +77,22 @@ type NewOrderRequest struct {
 	ClientOrderID string  `json:"client_order_id"`
 }
 
-func (client *Client) NewOrder(quantity, price decimal.Decimal, algoID int, pair string, side Side) (orderStatus OrderStatusResponse, err error) {
-	q, _ := quantity.Float64()
-	p, _ := price.Float64()
+func (client *Client) NewOrder(quantity, price decimal.Decimal, pair string, side Side, algorithm ExecutionAlgorithm, clientOrderID string) (orderStatus OrderStatusResponse, err error) {
+	var (
+		q, _    = quantity.Float64()
+		p, _    = price.Float64()
+		reqBody = NewOrderRequest{
+			q,
+			p,
+			pair,
+			algorithmIDFromExecutionAlgorithm(algorithm),
+			clientOrderID,
+		}
+	)
+
 	if pair[len(pair)-3:] == "usd" && (p*q < 5 || q < 0.001) {
 		err = fmt.Errorf("not bigger than the minimum")
 		return
-	}
-	reqBody := NewOrderRequest{
-		q,
-		p,
-		pair,
-		algoID,
-		"",
 	}
 
 	return orderStatus, client.doRequest(http.MethodPost, "/v1/orders/"+sideToString(side), reqBody, &orderStatus, false, true)
