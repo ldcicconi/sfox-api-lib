@@ -2,6 +2,7 @@ package sfoxapi
 
 import (
 	"github.com/shopspring/decimal"
+	"net/http"
 )
 
 type SFOXBalance struct {
@@ -10,9 +11,6 @@ type SFOXBalance struct {
 	Available decimal.Decimal `json:"available"`
 }
 
-func (api *SFOXAPI) GetBalances() (balances []SFOXBalance, err error) {
-	// make request
-	_, _, err = api.doRequest("GET", "/v1/users/balance", nil, &balances, false, true)
-	api.reportError(BalanceKey, err)
-	return
+func (client *Client) GetBalances() (balances []SFOXBalance, err error) {
+	return balances, client.doRequest(http.MethodGet, "/v1/users/balance", nil, &balances, false, true)
 }
